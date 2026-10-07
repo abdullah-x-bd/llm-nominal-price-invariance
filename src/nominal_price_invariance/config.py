@@ -9,16 +9,18 @@ class ModelSpec:
     family: str
     input_per_million: float
     output_per_million: float
+    provider: str
+    reasoning_effort: str | None = None
 
 
-# Prices verified from OpenRouter on 2026-10-07. Runtime cost controls are
-# conservative and do not depend on these estimates alone.
+# Prices verified from OpenRouter on 2026-10-07. Provider pins are fixed before
+# the full experiment so serving-provider changes cannot be confounded with treatment.
 MODELS = (
-    ModelSpec("openai/gpt-5.6-luna", "OpenAI", 0.20, 1.20),
-    ModelSpec("deepseek/deepseek-v4-flash", "DeepSeek", 0.04998, 0.09996),
-    ModelSpec("z-ai/glm-5.3-flash", "Z.ai", 0.075, 0.25),
-    ModelSpec("qwen/qwen3.5-397b-a17b", "Qwen", 0.39, 2.34),
-    ModelSpec("meta-llama/llama-4-maverick", "Meta", 0.1875, 0.6525),
+    ModelSpec("openai/gpt-5.6-luna", "OpenAI", 0.20, 1.20, "OpenAI", "none"),
+    ModelSpec("deepseek/deepseek-v4-flash", "DeepSeek", 0.04998, 0.09996, "Relace"),
+    ModelSpec("z-ai/glm-5.3-flash", "Z.ai", 0.075, 0.25, "DeepInfra"),
+    ModelSpec("qwen/qwen3.5-397b-a17b", "Qwen", 0.39, 2.34, "Alibaba"),
+    ModelSpec("meta-llama/llama-4-maverick", "Meta", 0.1875, 0.6525, "Novita"),
 )
 
 HARD_USER_BUDGET_USD = 1.35
