@@ -7,8 +7,8 @@
       "family": "OpenAI",
       "provider": "Azure",
       "reasoning_effort": "none",
-      "input_per_million_usd": 0.20,
-      "output_per_million_usd": 1.20,
+      "input_per_million_usd": 0.2,
+      "output_per_million_usd": 1.2,
       "source": "https://openrouter.ai/openai/gpt-5.6-luna"
     },
     {
@@ -21,13 +21,13 @@
       "source": "https://openrouter.ai/deepseek/deepseek-v4-flash"
     },
     {
-      "slug": "z-ai/glm-5.3-flash",
-      "family": "Z.ai",
-      "provider": "Relace",
-      "reasoning_effort": null,
-      "input_per_million_usd": 0.036,
-      "output_per_million_usd": 0.50,
-      "source": "https://openrouter.ai/provider/relace"
+      "slug": "google/gemini-3.8-flash",
+      "family": "Google",
+      "provider": "Google AI Studio",
+      "reasoning_effort": "none",
+      "input_per_million_usd": 0.75,
+      "output_per_million_usd": 3.75,
+      "source": "https://openrouter.ai/google/gemini-3.8-flash"
     },
     {
       "slug": "qwen/qwen3.5-397b-a17b",
