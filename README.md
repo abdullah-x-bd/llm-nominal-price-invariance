@@ -14,7 +14,7 @@ See `docs/preregistration.md` for the frozen hypotheses and analysis plan.
 
 * `openai/gpt-5.6-luna`
 * `deepseek/deepseek-v4-flash`
-* `z-ai/glm-5.3-flash`
+* `google/gemini-3.8-flash`
 * `qwen/qwen3.5-397b-a17b`
 * `meta-llama/llama-4-maverick`
 
