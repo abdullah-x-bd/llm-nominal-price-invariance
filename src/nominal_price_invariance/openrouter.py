@@ -74,31 +74,48 @@ class OpenRouterClient:
             "usage": {"include": True},
             "provider": {"sort": "price", "allow_fallbacks": True},
         }
+        trace: list[dict[str, Any]] = []
         last_error: Exception | None = None
         for attempt in range(max_retries + 1):
             try:
                 r = await self.client.post(f"{BASE_URL}/chat/completions", json=payload)
                 if r.status_code in {429, 500, 502, 503, 504}:
+                    trace.append({"attempt": attempt + 1, "http_status": r.status_code, "body": r.text[:4000]})
                     raise httpx.HTTPStatusError(
                         f"retryable HTTP {r.status_code}", request=r.request, response=r
                     )
                 r.raise_for_status()
                 body = r.json()
                 content = body["choices"][0]["message"]["content"]
-                parsed = parse_allocation(content)
+                try:
+                    parsed = parse_allocation(content)
+                except Exception as parse_exc:
+                    trace.append({
+                        "attempt": attempt + 1,
+                        "http_status": r.status_code,
+                        "response": body,
+                        "parse_error": repr(parse_exc),
+                    })
+                    raise
                 usage = body.get("usage") or {}
+                trace.append({"attempt": attempt + 1, "http_status": r.status_code, "response": body})
                 return {
                     "response_id": body.get("id"),
                     "served_model": body.get("model"),
                     "provider": body.get("provider") or (body.get("openrouter_metadata") or {}).get("provider"),
                     "service_tier": body.get("service_tier"),
                     "raw_text": content,
+                    "raw_response_json": json.dumps(body, sort_keys=True, separators=(",", ":")),
+                    "attempt_trace_json": json.dumps(trace, sort_keys=True, separators=(",", ":")),
+                    "attempt_count": attempt + 1,
                     "weight_a": parsed.weight_a,
                     "weight_b": parsed.weight_b,
                     "prompt_tokens": usage.get("prompt_tokens") or usage.get("input_tokens"),
                     "completion_tokens": usage.get("completion_tokens") or usage.get("output_tokens"),
-                    "reasoning_tokens": ((usage.get("completion_tokens_details") or {}).get("reasoning_tokens")
-                                         or (usage.get("output_tokens_details") or {}).get("reasoning_tokens")),
+                    "reasoning_tokens": (
+                        (usage.get("completion_tokens_details") or {}).get("reasoning_tokens")
+                        or (usage.get("output_tokens_details") or {}).get("reasoning_tokens")
+                    ),
                     "reported_cost": usage.get("cost"),
                     "cache_discount": usage.get("cache_discount"),
                 }
@@ -106,5 +123,10 @@ class OpenRouterClient:
                 last_error = exc
                 if attempt >= max_retries:
                     break
-                await asyncio.sleep(min(8.0, 0.75 * (2 ** attempt)))
-        raise RuntimeError(f"OpenRouter request failed after retries: {last_error}")
+                await asyncio.sleep(min(8.0, 0.75 * (2**attempt)))
+        raise RuntimeError(
+            "OpenRouter request failed after retries: "
+            + repr(last_error)
+            + " | trace="
+            + json.dumps(trace, sort_keys=True, separators=(",", ":"))
+        )
