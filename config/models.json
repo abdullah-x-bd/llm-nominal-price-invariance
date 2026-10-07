@@ -1,0 +1,40 @@
+{
+  "verified_on": "2026-10-07",
+  "models": [
+    {
+      "slug": "openai/gpt-5.6-luna",
+      "family": "OpenAI",
+      "input_per_million_usd": 0.20,
+      "output_per_million_usd": 1.20,
+      "source": "https://openrouter.ai/openai/gpt-5.6-luna"
+    },
+    {
+      "slug": "deepseek/deepseek-v4-flash",
+      "family": "DeepSeek",
+      "input_per_million_usd": 0.04998,
+      "output_per_million_usd": 0.09996,
+      "source": "https://openrouter.ai/deepseek/deepseek-v4-flash"
+    },
+    {
+      "slug": "z-ai/glm-5.3-flash",
+      "family": "Z.ai",
+      "input_per_million_usd": 0.075,
+      "output_per_million_usd": 0.25,
+      "source": "https://openrouter.ai/z-ai/glm-5.3-flash"
+    },
+    {
+      "slug": "qwen/qwen3.5-397b-a17b",
+      "family": "Qwen",
+      "input_per_million_usd": 0.39,
+      "output_per_million_usd": 2.34,
+      "source": "https://openrouter.ai/qwen/qwen3.5-397b-a17b"
+    },
+    {
+      "slug": "meta-llama/llama-4-maverick",
+      "family": "Meta",
+      "input_per_million_usd": 0.1875,
+      "output_per_million_usd": 0.6525,
+      "source": "https://openrouter.ai/meta-llama/llama-4-maverick"
+    }
+  ]
+}
