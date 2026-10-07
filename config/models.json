@@ -21,15 +21,6 @@
       "source": "https://openrouter.ai/deepseek/deepseek-v4-flash"
     },
     {
-      "slug": "google/gemini-3.8-flash",
-      "family": "Google",
-      "provider": "Google AI Studio",
-      "reasoning_effort": "none",
-      "input_per_million_usd": 0.75,
-      "output_per_million_usd": 3.75,
-      "source": "https://openrouter.ai/google/gemini-3.8-flash"
-    },
-    {
       "slug": "qwen/qwen3.5-397b-a17b",
       "family": "Qwen",
       "provider": "Alibaba",
@@ -47,5 +38,8 @@
       "output_per_million_usd": 0.6525,
       "source": "https://openrouter.ai/meta-llama/llama-4-maverick"
     }
-  ]
+  ],
+  "final_confirmatory_model_count": 4,
+  "confirmatory_decisions_per_model": 2400,
+  "total_confirmatory_decisions": 9600
 }
