@@ -23,11 +23,11 @@
     {
       "slug": "z-ai/glm-5.3-flash",
       "family": "Z.ai",
-      "provider": "DeepInfra",
+      "provider": "Relace",
       "reasoning_effort": null,
-      "input_per_million_usd": 0.075,
-      "output_per_million_usd": 0.25,
-      "source": "https://openrouter.ai/z-ai/glm-5.3-flash"
+      "input_per_million_usd": 0.036,
+      "output_per_million_usd": 0.50,
+      "source": "https://openrouter.ai/provider/relace"
     },
     {
       "slug": "qwen/qwen3.5-397b-a17b",
