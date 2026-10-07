@@ -64,3 +64,11 @@ Pilot 4 processed 80 calls. The collector accounted for $0.005493 across success
 Because no confirmatory observations have yet been collected, GLM 5.3 Flash is replaced by Google Gemini 3.8 Flash. This restores five independent model families while keeping the fixed 32-token, no-explanation response protocol and the hard budget intact. Gemini 3.8 Flash is pinned to Google AI Studio with explicit non-reasoning effort. No financial state, treatment, hypothesis, outcome definition, or statistical test is changed.
 
 A final engineering pilot is required before the confirmatory run.
+
+## Pilot 5 and confirmatory freeze
+
+Gemini 3.8 Flash was tested as a possible fifth-family replacement. Its Google AI Studio endpoint rejected explicit non-reasoning requests because reasoning is mandatory. The other four model families again completed all 16 of 16 calls each.
+
+Rather than relax the completion protocol for one model or incur a materially different reasoning-token budget, the confirmatory experiment is frozen at four technically comparable model families. The final set is GPT-5.6 Luna on Azure, DeepSeek V4 Flash on Relace, Qwen3.5 397B A17B on Alibaba, and Llama 4 Maverick on Novita.
+
+Across the engineering pilots, these four profiles repeatedly produced complete allocations under the same 32-token terse-answer protocol. The final confirmatory sample contains 9,600 decisions. Pilot data remain excluded.
