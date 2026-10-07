@@ -34,3 +34,19 @@ The dedicated key meter recorded $0.041355 of incremental spend for Pilot 2. The
 The prompt-level JSON instruction is retained for all models. Universal `response_format` and `require_parameters` are removed. Provider pins and disabled fallbacks are retained. Explicit `none` reasoning is restored for GPT-5.6 Luna, DeepSeek V4 Flash, and Qwen3.5 397B A17B because Pilot 1 demonstrated clean one-pass JSON responses at low cost under that setting. Llama 4 Maverick remains pinned to Novita without a reasoning parameter. GLM 5.3 Flash remains pinned to DeepInfra with no reasoning parameter.
 
 No confirmatory outcome, treatment, financial state, or estimand is changed. Pilot 3 must complete all 80 engineering calls without malformed outputs before the full sample can begin.
+
+## Pilot 3 result
+
+Pilot 3 used model-specific direct inference profiles with fixed providers and no universal structured-output parameter. GPT-5.6 Luna on Azure, DeepSeek V4 Flash on Relace, Qwen3.5 397B A17B on Alibaba, and Llama 4 Maverick on Novita each completed all 16 of 16 engineering calls with valid allocations. Their response-reported successful-call cost for the 64 calls was approximately $0.0041 in total.
+
+GLM 5.3 Flash on DeepInfra completed 6 of 16 calls. The request profile itself was valid, but the remaining calls encountered upstream shared-pool overload errors reported as HTTP 429 `engine_overloaded`. This identifies the remaining issue as serving capacity rather than model-output incompatibility.
+
+The immediate key-usage endpoint had not yet reflected Pilot 3 spend at workflow completion, so response-reported costs are retained as the conservative real-time accounting source in addition to periodic key-meter checks.
+
+## Pilot 4 amendment
+
+GLM 5.3 Flash is moved from DeepInfra to Relace, which currently serves the same OpenRouter model. This is a serving-provider reliability change only. The model slug, prompt, financial states, treatments, hypotheses, and estimands are unchanged.
+
+Before Pilot 4, the collector is also amended so response-reported costs from paid failed attempts and retries count against the internal $1.20 stop. This closes the remaining budget-accounting edge case discovered during engineering validation.
+
+Pilot 4 must validate the final five fixed model-provider profiles before the confirmatory 12,000-decision run begins.
