@@ -16,6 +16,9 @@ on:
         required: true
         default: '16'
         type: string
+  push:
+    paths:
+      - '.github/pilot-trigger'
 
 permissions:
   contents: read
@@ -35,11 +38,58 @@ jobs:
       - name: Run inference
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-        run: >-
-          python -m nominal_price_invariance.collect
-          --mode '${{ inputs.mode }}'
-          --concurrency '${{ inputs.concurrency }}'
-          --out data/results/results.csv
+          DISPATCH_MODE: ${{ inputs.mode }}
+          DISPATCH_CONCURRENCY: ${{ inputs.concurrency }}
+        run: |
+          MODE="${DISPATCH_MODE:-pilot}"
+          CONCURRENCY="${DISPATCH_CONCURRENCY:-8}"
+          python -m nominal_price_invariance.collect \
+            --mode "$MODE" \
+            --concurrency "$CONCURRENCY" \
+            --out data/results/results.csv
+      - name: Audit collection
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import pandas as pd
+
+          manifest = Path("data/results/results.manifest.json")
+          failures = Path("data/results/results.failures.jsonl")
+          results = Path("data/results/results.csv")
+
+          if manifest.exists():
+              print("MANIFEST")
+              print(manifest.read_text())
+
+          if failures.exists():
+              lines = [x for x in failures.read_text().splitlines() if x.strip()]
+              print("FAILURE_COUNT", len(lines))
+              if lines:
+                  records = [json.loads(x) for x in lines]
+                  counts = {}
+                  for r in records:
+                      counts[r["model"]] = counts.get(r["model"], 0) + 1
+                  print("FAILURES_BY_MODEL", json.dumps(counts, sort_keys=True))
+                  for r in records[:5]:
+                      print("FAILURE_SAMPLE", r["model"], r["condition_id"], r["error"][:1000])
+
+          if results.exists():
+              df = pd.read_csv(results)
+              print("RESULT_ROWS", len(df))
+              print("ROWS_BY_MODEL")
+              print(df.groupby("model").size().to_string())
+              print("COST_BY_MODEL")
+              print(df.groupby("model")["cost_usd"].sum().to_string())
+              print("TOKENS_BY_MODEL")
+              print(df.groupby("model")[["prompt_tokens", "completion_tokens"]].sum().to_string())
+              if "provider" in df:
+                  print("PROVIDER_COUNTS")
+                  print(df.groupby(["model", "provider"], dropna=False).size().to_string())
+              print("ATTEMPT_COUNTS")
+              print(df.groupby(["model", "attempt_count"]).size().to_string())
+          PY
       - name: Analyze completed observations
         if: always()
         run: |
@@ -49,7 +99,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: nominal-price-${{ inputs.mode }}-${{ github.run_id }}
+          name: nominal-price-${{ github.event_name }}-${{ github.run_id }}
           path: |
             data/results/
             results/analysis/
