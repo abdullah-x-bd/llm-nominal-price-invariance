@@ -58,7 +58,7 @@ Five independently developed model families are used:
 
 * OpenAI GPT-5.6 Luna
 * DeepSeek V4 Flash
-* Z.ai GLM-5.3 Flash
+* Google Gemini 3.8 Flash
 * Qwen3.5 397B A17B
 * Meta Llama 4 Maverick
 
@@ -66,7 +66,7 @@ Exact OpenRouter slugs and the price snapshot are stored in `config/models.json`
 
 ## Inference settings
 
-Temperature is set to 0 and maximum completion length is 32 tokens. The prompt requires a two-field JSON answer and no explanation. Each model is pinned to one serving provider and fallbacks are disabled. GPT-5.6 Luna, DeepSeek V4 Flash, and Qwen3.5 397B A17B use explicit `none` reasoning effort, as validated in the engineering pilot; GLM 5.3 Flash and Llama 4 Maverick receive no reasoning parameter. Responses are requested independently, with no conversation history shared across observations. The complete call schedule is deterministically shuffled with request-order seed `20261008` before dispatch so treatment condition is not aligned with collection time. The serving model, provider metadata when available, token usage, raw response, and parse status are retained.
+Temperature is set to 0 and maximum completion length is 32 tokens. The prompt requires a two-field JSON answer and no explanation. Each model is pinned to one serving provider and fallbacks are disabled. GPT-5.6 Luna, DeepSeek V4 Flash, Gemini 3.8 Flash, and Qwen3.5 397B A17B use explicit `none` reasoning effort, as validated or to be validated in the engineering pilot; Llama 4 Maverick receives no reasoning parameter. Responses are requested independently, with no conversation history shared across observations. The complete call schedule is deterministically shuffled with request-order seed `20261008` before dispatch so treatment condition is not aligned with collection time. The serving model, provider metadata when available, token usage, raw response, and parse status are retained.
 
 ## Primary estimands
 
@@ -106,3 +106,9 @@ The user-set hard OpenRouter budget is $1.35. The collection code uses a conserv
 ## Analysis freeze
 
 This file, the scenario generator, model configuration, random seed, and expected design hash are committed before the full live run. Any later exploratory analysis is to be labeled exploratory rather than preregistered.
+
+### Pre-confirmatory model compatibility amendment
+
+No confirmatory observations had been collected when the engineering pilots established that GLM 5.3 Flash could not reliably emit a final portfolio allocation inside the fixed 32-token completion budget across tested serving routes. Its endpoints consumed the completion budget in reasoning before returning the requested JSON allocation. This is a technical incompatibility with the locked low-cost response protocol, not an observed treatment result.
+
+GLM 5.3 Flash is therefore replaced before the confirmatory run by Google Gemini 3.8 Flash. The final five model families are OpenAI, DeepSeek, Google, Qwen, and Meta. The 300 financial states, eight conditions, random seeds, hypotheses, estimands, exclusion rules, equivalence margin, and statistical analysis plan are unchanged. Engineering-pilot observations remain excluded from confirmatory inference.
