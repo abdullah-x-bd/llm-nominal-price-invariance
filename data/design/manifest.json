@@ -1,0 +1,18 @@
+{
+  "conditions": [
+    "neutral_r1",
+    "neutral_r2",
+    "2x_Acheap",
+    "2x_Bcheap",
+    "10x_Acheap",
+    "10x_Bcheap",
+    "50x_Acheap",
+    "50x_Bcheap"
+  ],
+  "n_asymmetric": 200,
+  "n_decisions_per_model": 2400,
+  "n_scenarios": 300,
+  "n_symmetric": 100,
+  "scenario_sha256": "27c75d16675bd32418ec30696495bbc8f44493eed7777c7066b17e6e8d5eb791",
+  "seed": 20261007
+}
