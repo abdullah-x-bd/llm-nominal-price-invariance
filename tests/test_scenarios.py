@@ -1,5 +1,5 @@
 import math
-from nominal_price_invariance.scenarios import generate_scenarios, optimal_weight_a
+from nominal_price_invariance.scenarios import canonical_sha256, generate_scenarios, optimal_weight_a
 
 
 def test_design_counts_and_determinism():
@@ -22,3 +22,8 @@ def test_asymmetric_optima_are_interior():
     for s in generate_scenarios():
         if s.scenario_type == "asymmetric":
             assert 0.15 <= s.optimal_weight_a <= 0.85
+
+
+def test_locked_design_hash():
+    scenarios = generate_scenarios()
+    assert canonical_sha256(scenarios) == "27c75d16675bd32418ec30696495bbc8f44493eed7777c7066b17e6e8d5eb791"
