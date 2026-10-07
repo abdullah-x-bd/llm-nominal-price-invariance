@@ -54,11 +54,10 @@ The model returns integer percentage weights summing to 100. No explanation is r
 
 ## Models
 
-Five independently developed model families are used:
+Four independently developed model families are used:
 
 * OpenAI GPT-5.6 Luna
 * DeepSeek V4 Flash
-* Google Gemini 3.8 Flash
 * Qwen3.5 397B A17B
 * Meta Llama 4 Maverick
 
@@ -66,7 +65,7 @@ Exact OpenRouter slugs and the price snapshot are stored in `config/models.json`
 
 ## Inference settings
 
-Temperature is set to 0 and maximum completion length is 32 tokens. The prompt requires a two-field JSON answer and no explanation. Each model is pinned to one serving provider and fallbacks are disabled. GPT-5.6 Luna, DeepSeek V4 Flash, Gemini 3.8 Flash, and Qwen3.5 397B A17B use explicit `none` reasoning effort, as validated or to be validated in the engineering pilot; Llama 4 Maverick receives no reasoning parameter. Responses are requested independently, with no conversation history shared across observations. The complete call schedule is deterministically shuffled with request-order seed `20261008` before dispatch so treatment condition is not aligned with collection time. The serving model, provider metadata when available, token usage, raw response, and parse status are retained.
+Temperature is set to 0 and maximum completion length is 32 tokens. The prompt requires a two-field JSON answer and no explanation. Each model is pinned to one serving provider and fallbacks are disabled. GPT-5.6 Luna, DeepSeek V4 Flash, and Qwen3.5 397B A17B use explicit `none` reasoning effort; Llama 4 Maverick receives no reasoning parameter. These four profiles repeatedly produced valid terse allocations in the engineering pilots. Responses are requested independently, with no conversation history shared across observations. The complete call schedule is deterministically shuffled with request-order seed `20261008` before dispatch so treatment condition is not aligned with collection time. The serving model, provider metadata when available, token usage, raw response, and parse status are retained.
 
 ## Primary estimands
 
@@ -112,3 +111,11 @@ This file, the scenario generator, model configuration, random seed, and expecte
 No confirmatory observations had been collected when the engineering pilots established that GLM 5.3 Flash could not reliably emit a final portfolio allocation inside the fixed 32-token completion budget across tested serving routes. Its endpoints consumed the completion budget in reasoning before returning the requested JSON allocation. This is a technical incompatibility with the locked low-cost response protocol, not an observed treatment result.
 
 GLM 5.3 Flash is therefore replaced before the confirmatory run by Google Gemini 3.8 Flash. The final five model families are OpenAI, DeepSeek, Google, Qwen, and Meta. The 300 financial states, eight conditions, random seeds, hypotheses, estimands, exclusion rules, equivalence margin, and statistical analysis plan are unchanged. Engineering-pilot observations remain excluded from confirmatory inference.
+
+### Final confirmatory model-set freeze
+
+A subsequent engineering probe showed that Gemini 3.8 Flash on the tested Google endpoint requires reasoning and rejects a non-reasoning request. Because the experiment deliberately fixes a terse 32-token completion budget to keep all models on a comparable low-latency decision protocol, the Google candidate is not added to the confirmatory set.
+
+The final confirmatory model set therefore contains the four families that repeatedly completed the engineering protocol without model-specific relaxation: OpenAI GPT-5.6 Luna, DeepSeek V4 Flash, Qwen3.5 397B A17B, and Meta Llama 4 Maverick.
+
+This gives 2,400 decisions per model and 9,600 confirmatory decisions in total. The scenario count, treatment conditions, hypotheses, estimands, statistical tests, equivalence threshold, and randomization scheme remain unchanged. No engineering-pilot observation is included in confirmatory inference.
