@@ -70,21 +70,30 @@ class OpenRouterClient:
             "messages": [{"role": "user", "content": prompt}],
             "temperature": 0,
             "max_tokens": MAX_TOKENS,
-            "reasoning": {"effort": "none", "exclude": True},
+            "response_format": {"type": "json_object"},
             "usage": {"include": True},
-            "provider": {"sort": "price", "allow_fallbacks": True},
+            "provider": {
+                "only": [model.provider],
+                "allow_fallbacks": False,
+                "require_parameters": True,
+            },
         }
+        if model.reasoning_effort is not None:
+            payload["reasoning"] = {"effort": model.reasoning_effort, "exclude": True}
+
         trace: list[dict[str, Any]] = []
         last_error: Exception | None = None
+        retryable = {429, 500, 502, 503, 504}
         for attempt in range(max_retries + 1):
             try:
                 r = await self.client.post(f"{BASE_URL}/chat/completions", json=payload)
-                if r.status_code in {429, 500, 502, 503, 504}:
-                    trace.append({"attempt": attempt + 1, "http_status": r.status_code, "body": r.text[:4000]})
-                    raise httpx.HTTPStatusError(
-                        f"retryable HTTP {r.status_code}", request=r.request, response=r
-                    )
-                r.raise_for_status()
+                if r.status_code >= 400:
+                    trace.append({
+                        "attempt": attempt + 1,
+                        "http_status": r.status_code,
+                        "body": r.text[:8000],
+                    })
+                    r.raise_for_status()
                 body = r.json()
                 content = body["choices"][0]["message"]["content"]
                 try:
@@ -121,7 +130,8 @@ class OpenRouterClient:
                 }
             except Exception as exc:
                 last_error = exc
-                if attempt >= max_retries:
+                status = exc.response.status_code if isinstance(exc, httpx.HTTPStatusError) else None
+                if attempt >= max_retries or (status is not None and status not in retryable):
                     break
                 await asyncio.sleep(min(8.0, 0.75 * (2**attempt)))
         raise RuntimeError(
