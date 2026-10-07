@@ -70,12 +70,10 @@ class OpenRouterClient:
             "messages": [{"role": "user", "content": prompt}],
             "temperature": 0,
             "max_tokens": MAX_TOKENS,
-            "response_format": {"type": "json_object"},
             "usage": {"include": True},
             "provider": {
                 "only": [model.provider],
                 "allow_fallbacks": False,
-                "require_parameters": True,
             },
         }
         if model.reasoning_effort is not None:
