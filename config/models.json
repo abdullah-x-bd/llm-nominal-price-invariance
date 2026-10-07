@@ -1,11 +1,11 @@
 {
   "verified_on": "2026-10-07",
-  "routing_policy": "one fixed provider per model; fallbacks disabled; requested parameters required",
+  "routing_policy": "one fixed provider per model; fallbacks disabled; direct non-reasoning mode used where explicitly supported",
   "models": [
     {
       "slug": "openai/gpt-5.6-luna",
       "family": "OpenAI",
-      "provider": "OpenAI",
+      "provider": "Azure",
       "reasoning_effort": "none",
       "input_per_million_usd": 0.20,
       "output_per_million_usd": 1.20,
@@ -15,7 +15,7 @@
       "slug": "deepseek/deepseek-v4-flash",
       "family": "DeepSeek",
       "provider": "Relace",
-      "reasoning_effort": null,
+      "reasoning_effort": "none",
       "input_per_million_usd": 0.04998,
       "output_per_million_usd": 0.09996,
       "source": "https://openrouter.ai/deepseek/deepseek-v4-flash"
@@ -33,7 +33,7 @@
       "slug": "qwen/qwen3.5-397b-a17b",
       "family": "Qwen",
       "provider": "Alibaba",
-      "reasoning_effort": null,
+      "reasoning_effort": "none",
       "input_per_million_usd": 0.39,
       "output_per_million_usd": 2.34,
       "source": "https://openrouter.ai/qwen/qwen3.5-397b-a17b"
