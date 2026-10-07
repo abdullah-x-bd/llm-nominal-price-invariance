@@ -168,7 +168,10 @@ def analyze(path: Path, outdir: Path) -> None:
         neutral = gm[gm.condition_id.isin(["neutral_r1", "neutral_r2"])].pivot(
             index="scenario_id", columns="condition_id", values="weight_a"
         ).dropna()
-        baseline_d = neutral["neutral_r1"] - neutral["neutral_r2"]
+        if {"neutral_r1", "neutral_r2"}.issubset(neutral.columns):
+            baseline_d = (neutral["neutral_r1"] - neutral["neutral_r2"]).dropna()
+        else:
+            baseline_d = pd.Series(dtype=float)
         baseline_abs = baseline_d.abs()
         noise_by_model[model] = baseline_abs
         row = {"model": model, "scenario_type": "all", "ratio": 1, "baseline_repeat_noise": True}
@@ -184,7 +187,11 @@ def analyze(path: Path, outdir: Path) -> None:
                 p = gs[gs.condition_id.isin([a_id, b_id])].pivot(
                     index="scenario_id", columns="condition_id", values="weight_a"
                 ).dropna()
-                d = p[a_id] - p[b_id]
+                if not {a_id, b_id}.issubset(p.columns):
+                    continue
+                d = (p[a_id] - p[b_id]).dropna()
+                if d.empty:
+                    continue
                 summary = {
                     "model": model,
                     "scenario_type": stratum,
