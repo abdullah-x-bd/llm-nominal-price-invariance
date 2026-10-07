@@ -50,3 +50,17 @@ GLM 5.3 Flash is moved from DeepInfra to Relace, which currently serves the same
 Before Pilot 4, the collector is also amended so response-reported costs from paid failed attempts and retries count against the internal $1.20 stop. This closes the remaining budget-accounting edge case discovered during engineering validation.
 
 Pilot 4 must validate the final five fixed model-provider profiles before the confirmatory 12,000-decision run begins.
+
+## Pilot 4 result
+
+Pilot 4 retained the same experiment and moved GLM 5.3 Flash from DeepInfra to Relace. GPT-5.6 Luna, DeepSeek V4 Flash, Qwen3.5 397B A17B, and Llama 4 Maverick again completed all 16 of 16 calls each under their fixed profiles.
+
+GLM 5.3 Flash returned HTTP 200 responses on Relace but consumed the entire 32-token completion allowance in reasoning and emitted no final allocation on all 16 calls. This demonstrates that the remaining incompatibility is model-level under the locked terse-response protocol rather than an upstream-capacity problem.
+
+Pilot 4 processed 80 calls. The collector accounted for $0.005493 across successful and failed paid attempts.
+
+## Final pre-confirmatory model amendment
+
+Because no confirmatory observations have yet been collected, GLM 5.3 Flash is replaced by Google Gemini 3.8 Flash. This restores five independent model families while keeping the fixed 32-token, no-explanation response protocol and the hard budget intact. Gemini 3.8 Flash is pinned to Google AI Studio with explicit non-reasoning effort. No financial state, treatment, hypothesis, outcome definition, or statistical test is changed.
+
+A final engineering pilot is required before the confirmatory run.
