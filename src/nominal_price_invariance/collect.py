@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any
 
 from .config import CONCURRENCY, HARD_USER_BUDGET_USD, LIVE_RUN_STOP_USD, MODELS
-from .openrouter import OpenRouterClient
+from .openrouter import OpenRouterClient, OpenRouterRequestError
 from .prompts import CONDITIONS, build_prompt, prices_for
 from .scenarios import Scenario, generate_scenarios
 
@@ -72,6 +72,7 @@ async def run(mode: str, out: Path, scenarios_path: Path | None, concurrency: in
     reserved_spend = 0.0
     stop = False
     completed = 0
+    processed = 0
     authoritative_checks: list[dict[str, Any]] = []
     start = time.time()
 
@@ -82,6 +83,7 @@ async def run(mode: str, out: Path, scenarios_path: Path | None, concurrency: in
             actual = float(info.get("usage") or 0.0) - baseline_usage
             authoritative_checks.append({
                 "completed": completed,
+                "processed": processed,
                 "incremental_usage_usd": actual,
                 "checked_at_utc": datetime.now(timezone.utc).isoformat(),
             })
@@ -95,7 +97,7 @@ async def run(mode: str, out: Path, scenarios_path: Path | None, concurrency: in
             })
 
     async def do_job(s, c, m):
-        nonlocal estimated_spend, reserved_spend, stop, completed
+        nonlocal estimated_spend, reserved_spend, stop, completed, processed
         worst_next = 450 / 1_000_000 * m.input_per_million + 32 / 1_000_000 * m.output_per_million
         async with sem:
             async with lock:
@@ -144,12 +146,19 @@ async def run(mode: str, out: Path, scenarios_path: Path | None, concurrency: in
                     estimated_spend += float(cost or 0.0)
                     reserved_spend = max(0.0, reserved_spend - worst_next)
                     completed += 1
-                    should_check = completed % 100 == 0
+                    processed += 1
+                    should_check = processed % 100 == 0
                 if should_check:
                     await meter_check()
             except Exception as exc:
+                failed_cost = float(getattr(exc, "cost_usd", 0.0) or 0.0)
+                should_check = False
                 async with lock:
                     reserved_spend = max(0.0, reserved_spend - worst_next)
+                    estimated_spend += failed_cost
+                    processed += 1
+                    if estimated_spend >= LIVE_RUN_STOP_USD:
+                        stop = True
                     failures.append({
                         "scenario_id": s.scenario_id,
                         "condition_id": c.condition_id,
@@ -157,8 +166,12 @@ async def run(mode: str, out: Path, scenarios_path: Path | None, concurrency: in
                         "prompt_sha256": prompt_hash,
                         "prompt_text": prompt,
                         "failed_at_utc": datetime.now(timezone.utc).isoformat(),
+                        "cost_usd": failed_cost,
                         "error": repr(exc),
                     })
+                    should_check = processed % 100 == 0
+                if should_check:
+                    await meter_check()
 
     ending: dict[str, Any] | None = None
     try:
@@ -192,6 +205,8 @@ async def run(mode: str, out: Path, scenarios_path: Path | None, concurrency: in
         "n_planned": len(jobs),
         "n_completed": len(rows),
         "n_failures": len(failures),
+        "n_processed": len(rows) + len(failures),
+        "accounted_attempt_spend_usd": round(estimated_spend, 6),
         "estimated_spend_usd": round(estimated_spend, 6),
         "actual_key_spend_usd": round(actual_spend, 6) if actual_spend is not None else None,
         "baseline_key_usage_usd": baseline_usage,
