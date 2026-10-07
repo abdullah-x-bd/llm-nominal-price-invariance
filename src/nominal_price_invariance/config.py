@@ -18,7 +18,7 @@ class ModelSpec:
 MODELS = (
     ModelSpec("openai/gpt-5.6-luna", "OpenAI", 0.20, 1.20, "Azure", "none"),
     ModelSpec("deepseek/deepseek-v4-flash", "DeepSeek", 0.04998, 0.09996, "Relace", "none"),
-    ModelSpec("z-ai/glm-5.3-flash", "Z.ai", 0.036, 0.50, "Relace"),
+    ModelSpec("google/gemini-3.8-flash", "Google", 0.75, 3.75, "Google AI Studio", "none"),
     ModelSpec("qwen/qwen3.5-397b-a17b", "Qwen", 0.39, 2.34, "Alibaba", "none"),
     ModelSpec("meta-llama/llama-4-maverick", "Meta", 0.1875, 0.6525, "Novita"),
 )
