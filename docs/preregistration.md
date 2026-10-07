@@ -23,7 +23,7 @@ The locked design contains 300 financial states generated before any model outco
 * 100 symmetric states. Stocks A and B have identical expected returns and volatilities. The exact optimal allocation is 50/50.
 * 200 asymmetric states. Expected returns, volatilities, and correlations vary. States are retained only when the exact long-only mean-variance optimum for Stock A lies between 15% and 85%.
 
-The random seed is `20261007`. The exact state file and its SHA-256 hash are committed under `data/design/` before live inference.
+The random seed is `20261007`. The deterministic generator and the SHA-256 hash of the resulting 300-state design are committed before live inference. The workflow materializes the exact CSV from that frozen generator before any model call.
 
 ## Conditions
 
@@ -105,4 +105,4 @@ The user-set hard OpenRouter budget is $1.35. The collection code uses a conserv
 
 ## Analysis freeze
 
-This file, the scenario generator, model configuration, and the exact `scenarios.csv` are committed before the full live run. Any later exploratory analysis is to be labeled exploratory rather than preregistered.
+This file, the scenario generator, model configuration, random seed, and expected design hash are committed before the full live run. Any later exploratory analysis is to be labeled exploratory rather than preregistered.
