@@ -18,7 +18,7 @@ on:
         type: string
   push:
     paths:
-      - '.github/pilot-trigger'
+      - '.github/full-trigger'
 
 permissions:
   contents: read
@@ -41,7 +41,7 @@ jobs:
           DISPATCH_MODE: ${{ inputs.mode }}
           DISPATCH_CONCURRENCY: ${{ inputs.concurrency }}
         run: |
-          MODE="${DISPATCH_MODE:-pilot}"
+          MODE="${DISPATCH_MODE:-full}"
           CONCURRENCY="${DISPATCH_CONCURRENCY:-8}"
           python -m nominal_price_invariance.collect \
             --mode "$MODE" \
@@ -99,7 +99,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: nominal-price-${{ github.event_name }}-${{ github.run_id }}
+          name: nominal-price-${{ inputs.mode || 'full' }}-${{ github.run_id }}
           path: |
             data/results/
             results/analysis/
