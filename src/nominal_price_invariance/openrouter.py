@@ -20,6 +20,15 @@ class ParsedAllocation:
     weight_b: int
 
 
+class OpenRouterRequestError(RuntimeError):
+    """Request failure carrying any response-reported spend from failed attempts."""
+
+    def __init__(self, message: str, *, trace: list[dict[str, Any]], cost_usd: float):
+        super().__init__(message)
+        self.trace = trace
+        self.cost_usd = float(cost_usd)
+
+
 def parse_allocation(text: str) -> ParsedAllocation:
     text = text.strip()
     candidates = [text]
@@ -80,6 +89,7 @@ class OpenRouterClient:
             payload["reasoning"] = {"effort": model.reasoning_effort, "exclude": True}
 
         trace: list[dict[str, Any]] = []
+        cumulative_cost = 0.0
         last_error: Exception | None = None
         retryable = {429, 500, 502, 503, 504}
         for attempt in range(max_retries + 1):
@@ -93,6 +103,9 @@ class OpenRouterClient:
                     })
                     r.raise_for_status()
                 body = r.json()
+                usage = body.get("usage") or {}
+                attempt_cost = float(usage.get("cost") or 0.0)
+                cumulative_cost += attempt_cost
                 content = body["choices"][0]["message"]["content"]
                 try:
                     parsed = parse_allocation(content)
@@ -104,7 +117,6 @@ class OpenRouterClient:
                         "parse_error": repr(parse_exc),
                     })
                     raise
-                usage = body.get("usage") or {}
                 trace.append({"attempt": attempt + 1, "http_status": r.status_code, "response": body})
                 return {
                     "response_id": body.get("id"),
@@ -123,7 +135,8 @@ class OpenRouterClient:
                         (usage.get("completion_tokens_details") or {}).get("reasoning_tokens")
                         or (usage.get("output_tokens_details") or {}).get("reasoning_tokens")
                     ),
-                    "reported_cost": usage.get("cost"),
+                    "reported_cost": cumulative_cost,
+                    "final_response_cost": attempt_cost,
                     "cache_discount": usage.get("cache_discount"),
                 }
             except Exception as exc:
@@ -132,9 +145,11 @@ class OpenRouterClient:
                 if attempt >= max_retries or (status is not None and status not in retryable):
                     break
                 await asyncio.sleep(min(8.0, 0.75 * (2**attempt)))
-        raise RuntimeError(
+        raise OpenRouterRequestError(
             "OpenRouter request failed after retries: "
             + repr(last_error)
             + " | trace="
-            + json.dumps(trace, sort_keys=True, separators=(",", ":"))
+            + json.dumps(trace, sort_keys=True, separators=(",", ":")),
+            trace=trace,
+            cost_usd=cumulative_cost,
         )
