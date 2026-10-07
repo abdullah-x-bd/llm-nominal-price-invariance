@@ -1,0 +1,56 @@
+name: OpenRouter inference
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'pilot or full'
+        required: true
+        default: 'pilot'
+        type: choice
+        options:
+          - pilot
+          - full
+      concurrency:
+        description: 'Concurrent API requests'
+        required: true
+        default: '16'
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[dev]'
+      - run: python scripts/generate_design.py
+      - run: pytest -q
+      - name: Run inference
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: >-
+          python -m nominal_price_invariance.collect
+          --mode '${{ inputs.mode }}'
+          --concurrency '${{ inputs.concurrency }}'
+          --out data/results/results.csv
+      - name: Analyze completed observations
+        if: always()
+        run: |
+          if [ -f data/results/results.csv ]; then
+            python -m nominal_price_invariance.analysis data/results/results.csv --outdir results/analysis
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nominal-price-${{ inputs.mode }}-${{ github.run_id }}
+          path: |
+            data/results/
+            results/analysis/
+          if-no-files-found: warn
