@@ -66,7 +66,7 @@ Exact OpenRouter slugs and the price snapshot are stored in `config/models.json`
 
 ## Inference settings
 
-Temperature is set to 0 and maximum completion length is 32 tokens. JSON output is requested through `response_format`. Each model is pinned to one serving provider, fallbacks are disabled, and the provider must support the requested parameters. GPT-5.6 Luna uses explicit `none` reasoning effort; models whose default non-reasoning path is used receive no reasoning parameter. Responses are requested independently, with no conversation history shared across observations. The complete call schedule is deterministically shuffled with request-order seed `20261008` before dispatch so treatment condition is not aligned with collection time. The serving model, provider metadata when available, token usage, raw response, and parse status are retained.
+Temperature is set to 0 and maximum completion length is 32 tokens. The prompt requires a two-field JSON answer and no explanation. Each model is pinned to one serving provider and fallbacks are disabled. GPT-5.6 Luna, DeepSeek V4 Flash, and Qwen3.5 397B A17B use explicit `none` reasoning effort, as validated in the engineering pilot; GLM 5.3 Flash and Llama 4 Maverick receive no reasoning parameter. Responses are requested independently, with no conversation history shared across observations. The complete call schedule is deterministically shuffled with request-order seed `20261008` before dispatch so treatment condition is not aligned with collection time. The serving model, provider metadata when available, token usage, raw response, and parse status are retained.
 
 ## Primary estimands
 
