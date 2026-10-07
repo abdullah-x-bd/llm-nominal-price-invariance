@@ -4,7 +4,7 @@ Controlled experiments on whether nominal share prices, which are payoff-irrelev
 
 ## Core design
 
-The locked experiment contains 300 financial states, eight nominal-price conditions, and five model families. Each model therefore makes 2,400 independent portfolio decisions, for 12,000 decisions in the full experiment.
+The locked experiment contains 300 financial states, eight nominal-price conditions, and four independently developed model families. Each model therefore makes 2,400 independent portfolio decisions, for 9,600 decisions in the confirmatory experiment.
 
 The treatment is deliberately narrow. Within each paired condition, the economic state and prompt are unchanged except for which stock label receives the lower nominal share price.
 
@@ -14,7 +14,6 @@ See `docs/preregistration.md` for the frozen hypotheses and analysis plan.
 
 * `openai/gpt-5.6-luna`
 * `deepseek/deepseek-v4-flash`
-* `google/gemini-3.8-flash`
 * `qwen/qwen3.5-397b-a17b`
 * `meta-llama/llama-4-maverick`
 
